@@ -1,5 +1,5 @@
 "use client";
-import { QueryClient, useMutation, useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import { QueryClient, useMutation, useQuery, useQueryClient, keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -55,6 +55,22 @@ export default function Home() {
     queryFn: () => wait(1000).then(() => POSTS[page]),
   });
 
+  const commentQuery = useInfiniteQuery({
+    queryKey: ["comments"],
+    queryFn: ({ pageParam }) =>
+      wait(1000).then(() => {
+        console.log(pageParam);
+        return { nextPage: pageParam + 1, anything: "any" };
+      }),
+    placeholderData: keepPreviousData,
+    staleTime: 1000 * 60 * 5,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+  });
+  const dataArray = commentQuery.data?.pages.map((item) => {
+    console.log(item.anything);
+  });
+  void dataArray;
   if (postQuery.isLoading) return <>Loading...</>;
   if (postQuery.error) return <>{postQuery.error.message}</>;
   return (

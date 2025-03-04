@@ -12,7 +12,7 @@ npm i @tanstack/react-query-devtools
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-export default function Queryrovider({ children }: { children: React.ReactNode }) {
+export default function QueryProvider({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient();
 
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
@@ -103,4 +103,25 @@ use useClient hook to invalidate query
 ```
  queryClient.invalidateQueries({ queryKey: ["post"], exact: true });
 
+```
+
+## useInfiniteQuery
+
+```
+  const commentQuery = useInfiniteQuery({
+    queryKey: ["comments"],
+    queryFn: ({ pageParam }) =>
+      wait(1000).then(() => {
+        console.log(pageParam);
+        return { nextPage: pageParam + 1, anything: "any" };
+      }),
+    placeholderData: keepPreviousData,
+    staleTime: 1000 * 60 * 5,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+  });
+  const dataArray = commentQuery.data?.pages.map((item) => {
+    console.log(item.anything);
+  });
+  void dataArray;
 ```
